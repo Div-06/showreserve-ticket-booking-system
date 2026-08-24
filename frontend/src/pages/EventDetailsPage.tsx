@@ -4,6 +4,8 @@ import { EventItem, ShowItem } from '../types';
 import api from '../api/client';
 import { Calendar, Clock, Film, Music, MapPin, Ticket, ShieldCheck, ChevronRight } from 'lucide-react';
 
+import { FALLBACK_EVENTS } from '../data/fallbackData';
+
 export const EventDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<EventItem | null>(null);
@@ -13,8 +15,17 @@ export const EventDetailsPage: React.FC = () => {
     if (id) {
       api
         .get<EventItem>(`/events/${id}`)
-        .then((res) => setEvent(res.data))
-        .catch((err) => console.error(err))
+        .then((res) => {
+          if (res.data) setEvent(res.data);
+          else {
+            const fallback = FALLBACK_EVENTS.find((e) => e.id === id) || FALLBACK_EVENTS[0];
+            setEvent(fallback);
+          }
+        })
+        .catch(() => {
+          const fallback = FALLBACK_EVENTS.find((e) => e.id === id) || FALLBACK_EVENTS[0];
+          setEvent(fallback);
+        })
         .finally(() => setLoading(false));
     }
   }, [id]);

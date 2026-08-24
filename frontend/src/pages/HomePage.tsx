@@ -4,6 +4,8 @@ import { EventCard } from '../components/EventCard';
 import api from '../api/client';
 import { Search, Sparkles, Filter, Ticket, Film, Music, ShieldCheck, Zap } from 'lucide-react';
 
+import { FALLBACK_EVENTS } from '../data/fallbackData';
+
 export const HomePage: React.FC = () => {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,9 +24,20 @@ export const HomePage: React.FC = () => {
       if (search) params.search = search;
 
       const res = await api.get<EventItem[]>('/events', { params });
-      setEvents(res.data);
+      if (res.data && res.data.length > 0) {
+        setEvents(res.data);
+      } else {
+        const filtered = selectedCategory === 'ALL'
+          ? FALLBACK_EVENTS
+          : FALLBACK_EVENTS.filter((e) => e.category === selectedCategory);
+        setEvents(filtered);
+      }
     } catch (err) {
-      console.error('Failed to fetch events', err);
+      console.warn('Backend API unreachable, using showcase events dataset for Vercel preview:', err);
+      const filtered = selectedCategory === 'ALL'
+        ? FALLBACK_EVENTS
+        : FALLBACK_EVENTS.filter((e) => e.category === selectedCategory);
+      setEvents(filtered);
     } finally {
       setLoading(false);
     }
