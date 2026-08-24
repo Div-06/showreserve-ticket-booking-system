@@ -22,15 +22,16 @@ Designed for high-demand ticket releases with **zero double-booking races**, **a
 
 ---
 
-## 🌐 Deployment & Access
+## 🌐 Live Demo & Access
 
 | Service | Environment / URL | Description |
 | :--- | :--- | :--- |
-| **Frontend Web App** | `http://localhost:5173` | React 18 + Vite interactive seat map application |
+| **Live Frontend (Vercel)** | **[https://frontend-eight-green-16.vercel.app](https://frontend-eight-green-16.vercel.app)** | Production SPA deployed on Vercel |
+| **Local Frontend** | `http://localhost:5173` | React 18 + Vite interactive seat map application |
 | **Backend API** | `http://localhost:3000/api` | NestJS REST API with rate limiting and JWT auth |
 | **Swagger API Docs** | `http://localhost:3000/api/docs` | Interactive OpenAPI documentation & schema explorer |
 
-> *Production Deployment Note*: The application is structured for cloud deployment (Frontend on Vercel, Backend + PostgreSQL + Redis on Render / Railway). Environment templates are provided in `.env.example`.
+> *Production Architecture*: Frontend is live on Vercel (`https://frontend-eight-green-16.vercel.app`), with containerized Backend (NestJS + PostgreSQL + Redis) configured via `docker-compose.yml` for cloud hosting (Render/Railway).
 
 ---
 
