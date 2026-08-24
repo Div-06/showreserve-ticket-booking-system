@@ -238,7 +238,10 @@ export class BookingsService {
       throw new ForbiddenException('You do not have access to this booking');
     }
 
-    return booking;
+    return {
+      ...booking,
+      emailPreviewUrl: this.mailService.getLastPreviewUrl(),
+    };
   }
 
   /**
@@ -336,6 +339,11 @@ export class BookingsService {
           category: any;
           assignedToWaitlist: boolean;
           newOfferId?: string;
+          waitlistEmail?: string;
+          waitlistName?: string;
+          eventTitle?: string;
+          expiresAt?: Date;
+          token?: string;
         }> = [];
 
         // 2. For each released seat, check for next eligible customer in FIFO waitlist queue
@@ -389,18 +397,12 @@ export class BookingsService {
               category,
               assignedToWaitlist: true,
               newOfferId: offer.id,
-            });
-
-            // Dispatch notification email
-            this.mailService.sendWaitlistOffer(
-              waitlistEntry.customer.email,
-              waitlistEntry.customer.name,
-              booking.show.event.title,
-              seatItem.seatNumber,
-              category,
+              waitlistEmail: waitlistEntry.customer.email,
+              waitlistName: waitlistEntry.customer.name,
+              eventTitle: booking.show.event.title,
               expiresAt,
               token,
-            );
+            });
           } else {
             // No waitlist customer: release to general AVAILABLE
             await tx.showSeat.update({
@@ -432,7 +434,7 @@ export class BookingsService {
       },
     );
 
-    // Schedule waitlist expiration jobs for offered seats
+    // Schedule waitlist expiration jobs and dispatch notification emails
     for (const seat of cancellationResult.releasedSeatsInfo) {
       if (seat.assignedToWaitlist && seat.newOfferId) {
         await this.queueService.scheduleWaitlistExpiry(
@@ -440,6 +442,20 @@ export class BookingsService {
           cancellationResult.booking.showId,
           offerTtlSec * 1000,
         );
+
+        if ((seat as any).waitlistEmail) {
+          this.mailService
+            .sendWaitlistOffer(
+              (seat as any).waitlistEmail,
+              (seat as any).waitlistName,
+              (seat as any).eventTitle,
+              seat.seatNumber,
+              seat.category,
+              (seat as any).expiresAt,
+              (seat as any).token,
+            )
+            .catch((e) => this.logger.error('Failed to send waitlist email', e));
+        }
       }
     }
 

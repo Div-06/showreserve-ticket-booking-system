@@ -140,10 +140,23 @@ export const BookingSuccessPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Email Notice */}
-        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-400">
-          <Mail className="h-4 w-4 text-brand-400" />
-          <span>A copy of your booking and QR ticket has been sent to your email.</span>
+        {/* Email Notice & Live Preview */}
+        <div className="mt-6 flex flex-col items-center justify-center gap-3 text-xs text-slate-400">
+          <div className="flex items-center gap-2">
+            <Mail className="h-4 w-4 text-brand-400" />
+            <span>A copy of your booking and QR ticket has been sent to <strong>{booking.customer?.email}</strong>.</span>
+          </div>
+
+          {booking.emailPreviewUrl && (
+            <a
+              href={booking.emailPreviewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/40 text-brand-400 font-bold text-xs transition-colors shadow-lg"
+            >
+              📬 View Live Sent Email (Ethereal Preview) ↗
+            </a>
+          )}
         </div>
       </div>
     </div>

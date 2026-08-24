@@ -119,6 +119,8 @@ export interface BookingItem {
   createdAt: string;
   show: ShowItem;
   seats: BookingSeatItem[];
+  customer?: { id: string; name: string; email: string };
+  emailPreviewUrl?: string;
 }
 
 export interface WaitlistEntryItem {
